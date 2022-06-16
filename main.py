@@ -9,7 +9,7 @@ import matplotlib.animation as animation
 
 G = 6.6743*10**-11  # m3 kg-1 s-2
 # Define what a Frame is
-Frame = 1  #seconds
+Frame = 10  #seconds
 
 #Create the planets
 class body:
@@ -27,6 +27,7 @@ class body:
         t = np.arange(0, Frame*2, Frame)
 
         #I might not need an ODE to solve this, since I am doing this one step at a time
+        # @staticmethod
         def motion(x, t, params):
             # x = (S, V) as vectors
             a = params
@@ -45,12 +46,12 @@ class body:
 
 #Calculates the force between two planets
 def Force(planet1,planet2):
-    dis = planet1.r-planet2.r
-    if dis == 0:
-        F = np.array([0,0,0])
+    dis = planet2.x-planet1.x
+    if np.array_equal(dis,np.array([0,0,0])):
+        force = np.array([0,0,0])
     else:
-        F = -G*planet2.m*planet1.m/dis
-    return F
+        force = ((G*planet2.m  * planet1.m)/(np.linalg.norm(dis)**2))*(dis/np.linalg.norm(dis))
+    return force
 
 # Calculates the total force on all planets from all other planets
 def Total_Force(p1, allp):
@@ -88,12 +89,15 @@ def updatedata(data,planets):
         newdata.append(planets[i].x)
     return data+newdata
 
-n =  2
+#n =  3
 #number of frames
-num = 100
-
+num = 300
 #Creates all planets
-planets  = [body(random.randint(3000000000, 30000000000),random.randint(30, 90),np.random.rand(3)*2,np.array([0,0,0])) for x in range(n)]
+#planets  = [body(random.randint(3000000000, 30000000000),random.randint(30, 90),np.random.rand(3)*8,np.array([0,-.05,-.05])) for x in range(n)]
+planets = [body(3000000,30,np.array([0,0,0]),np.array([.001,0,0])),
+           body(90000,30,np.array([2,0,0]),np.array([0,.01,0])),
+           body(200,30,np.array([-1.8,0,0]),np.array([0,-.0075,.0075]))]
+n = len(planets)
 
 # Create the data set
 data = []
@@ -114,13 +118,13 @@ lines = [ax.plot(dat[0, 0:1], dat[1, 0:1], dat[2, 0:1])[0] for dat in planet_dat
 
 
 # Set the axes properties
-ax.set_xlim3d([-10.0, 10.0])
+ax.set_xlim3d([-4.0, 4.0])
 ax.set_xlabel('X')
 
-ax.set_ylim3d([-10.0, 10.0])
+ax.set_ylim3d([-4.0, 4.0])
 ax.set_ylabel('Y')
 
-ax.set_zlim3d([-10.0, 10.0])
+ax.set_zlim3d([-1.0, 2.0])
 ax.set_zlabel('Z')
 
 ax.set_title('3D Test')
